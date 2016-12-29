@@ -91,6 +91,7 @@ class MainWindow:
         self.map_size_label_var.set("Total map size:  0 MB")
         self.map_size_label = tk.Label(master, textvariable=self.map_size_label_var)
         self.map_size_label.grid(row=17, column=2)
+        self.file_number_sum = 0
 
         self.cbTexts = {}
         self.cbVars = {}
@@ -98,7 +99,7 @@ class MainWindow:
         grid_row = self.START_ROW
         for indx, country in enumerate(self.country_list):
             self.cbVars[indx] = tk.IntVar()
-            self.cbVars[indx].trace("w", lambda a, b, c, d=indx, e=country[0]: self.get_country_filesize(d, e))
+            self.cbVars[indx].trace("w", lambda a, b, c: self.get_country_filesize())
             self.cb[indx] = tk.Checkbutton(master, text=country[0], variable=self.cbVars[indx],
                                            onvalue=1, offvalue=0, height=1, width=20, anchor="w", state=DISABLED)
             self.cb[indx].grid(row=grid_row, column=int(indx / self.MAX_LINES))
@@ -113,17 +114,17 @@ class MainWindow:
 
         # Get filesizes for all countries
         for index, country in enumerate(self.country_list):
-            self.country_filesize_sum = 0
+            country_filesize_sum = 0
             for rootd, dirs, files in os.walk(self.map_folder_path):
                 for file in files:
                     if file.lower().find(country[0].lower()) > -1:
                         filename = os.path.join(rootd, file)
                         country_filesize = os.path.getsize(filename)
-                        self.country_filesize_sum += country_filesize
+                        country_filesize_sum += country_filesize
                         country[2].append(filename)
-            country[1] = self.country_filesize_sum
+            country[1] = country_filesize_sum
 
-    def get_country_filesize(self, index, country_name):
+    def get_country_filesize(self):
         size_sum = 0
         self.file_number_sum = 0
         for index, country in enumerate(self.country_list):
